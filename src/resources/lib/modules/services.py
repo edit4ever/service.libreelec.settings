@@ -27,7 +27,14 @@
 
 import os
 import glob
+import subprocess
+import xbmc
+import xbmcgui
+import xbmcaddon
 
+__scriptid__ = 'service.libreelec.settings'
+__addon__ = xbmcaddon.Addon(id=__scriptid__)
+_ = __addon__.getLocalizedString
 
 class services:
 
@@ -45,6 +52,7 @@ class services:
     SSH_DAEMON = None
     D_SSH_DISABLE_PW_AUTH = None
     OPT_SSH_NOPASSWD = None
+    SSH_PASSWORD = None
     AVAHI_DAEMON = None
     CRON_DAEMON = None
     menu = {'4': {
@@ -180,8 +188,20 @@ class services:
                             'type': 'bool',
                             'InfoText': 742,
                             },
-                        'ssh_secure': {
+                        'ssh_passwd': {
                             'order': 2,
+                            'name': 32209,
+                            'value': "libreelec",
+                            'action': 'do_sshpasswd',
+                            'type': 'text',
+                            'parent': {
+                                'entry': 'ssh_autostart',
+                                'value': ['1'],
+                                },
+                            'InfoText': 746,
+                            },
+                        'ssh_secure': {
+                            'order': 3,
                             'name': 32203,
                             'value': None,
                             'action': 'initialize_ssh',
@@ -341,7 +361,10 @@ class services:
                 self.struct['ssh']['settings']['ssh_autostart']['value'] = self.oe.get_service_state('sshd')
                 self.struct['ssh']['settings']['ssh_secure']['value'] = self.oe.get_service_option('sshd', 'SSHD_DISABLE_PW_AUTH',
                         self.D_SSH_DISABLE_PW_AUTH).replace('true', '1').replace('false', '0').replace('"', '')
-
+                if self.oe.read_setting('services', 'sshpasswd') != None:
+                    self.struct['ssh']['settings']['ssh_passwd']['value'] = self.oe.read_setting('services', 'sshpasswd')
+                else:
+                    self.struct['ssh']['settings']['ssh_passwd']['value'] = 'libreelec'
                 # hide ssh settings if Kernel Parameter isset
 
                 cmd_file = open(self.KERNEL_CMD, 'r')
@@ -441,6 +464,7 @@ class services:
                     val = 'false'
                     options['SSH_ARGS'] = '""'
                 options['SSHD_DISABLE_PW_AUTH'] = '"%s"' % val
+                options['SSH_PASSWORD'] = '"%s"' % self.struct['ssh']['settings']['ssh_passwd']['value']
             else:
                 state = 0
             self.oe.set_service('sshd', options, state)
@@ -605,4 +629,37 @@ class services:
         except Exception, e:
             self.oe.dbg_log('services::wizard_set_samba', 'ERROR: (%s)' % repr(e))
 
-
+    def do_sshpasswd(self, **kwargs):
+        try:
+            self.oe.dbg_log('system::do_sshpasswd', 'enter_function', 0)
+            xbmcDialog = xbmcgui.Dialog()
+            if 'listItem' in kwargs:
+                self.set_value(kwargs['listItem'])
+            state = 1
+            options = {}
+            if self.struct['ssh']['settings']['ssh_autostart']['value'] == '1':
+                options['SSH_PASSWORD'] = '"%s"' % self.struct['ssh']['settings']['ssh_passwd']['value']
+            else:
+                state = 0
+            newpwd = self.struct['ssh']['settings']['ssh_passwd']['value']
+            ssh = subprocess.Popen(["passwd"], shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            readout1 = ssh.stdout.readline()
+            ssh.stdin.write(newpwd + '\n')
+            ssh.stdin.flush()
+            readout2 = ssh.stdout.readline()
+            ssh.stdin.write(newpwd + '\n')
+            readout3 = ssh.stdout.readline()
+            if "Bad password" in readout3:
+                xbmcDialog.ok(_(32220), _(32221))
+                self.struct['ssh']['settings']['ssh_passwd']['value'] = self.oe.read_setting('services', 'sshpasswd')
+                self.oe.dbg_log('system::do_sshpasswd', 'exit_function password too weak', 0)
+                return
+            elif "Retype password" in readout3:
+                self.oe.write_setting('services', 'sshpasswd', newpwd)
+                self.oe.set_service('sshd', options, state)
+                xbmcDialog.ok(_(32222), _(32223))
+            else:
+                xbmcDialog.ok(_(32224), _(32225))
+            self.oe.dbg_log('system::do_sshpasswd', 'exit_function', 0)
+        except Exception, e:
+            self.oe.dbg_log('system::do_sshpasswd', 'ERROR: (' + repr(e) + ')')

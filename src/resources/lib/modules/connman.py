@@ -554,15 +554,30 @@ class connman:
                     'order': 2,
                     'name': 32103,
                     'dbus': 'Dictionary',
-                    'settings': {'Powered': {
-                        'order': 1,
-                        'name': 32105,
-                        'value': '',
-                        'action': 'set_technologie',
-                        'type': 'bool',
-                        'dbus': 'Boolean',
-                        'InfoText': 730,
-                        }},
+                    'settings': {
+                        'Powered': {
+                            'order': 1,
+                            'name': 32105,
+                            'value': '',
+                            'action': 'set_technologie',
+                            'type': 'bool',
+                            'dbus': 'Boolean',
+                            'InfoText': 730,
+                            },
+                        'Tethering': {
+                            'order': 2,
+                            'name': 32108,
+                            'value': '',
+                            'action': 'set_technologie',
+                            'type': 'bool',
+                            'dbus': 'Boolean',
+                            'parent': {
+                                'entry': 'Powered',
+                                'value': ['1'],
+                                },
+                            'InfoText': 731,
+                            },
+                            },
                     'order': 1,
                     },
                 'Timeservers': {
@@ -963,15 +978,18 @@ class connman:
                         if settings['Powered']['value'] == '1':
                             if technologie['Powered'] != True:
                                 self.Technology.SetProperty('Powered', dbus.Boolean(True, variant_level=1))
-                            if settings['Tethering']['value'] == '1' and dbus.String(settings['TetheringIdentifier']['value']) != '' \
-                                and dbus.String(settings['TetheringPassphrase']['value']) != '':
-                                time.sleep(5)
-                                self.Technology.SetProperty('TetheringIdentifier', dbus.String(settings['TetheringIdentifier']['value'],
-                                                            variant_level=1))
-                                self.Technology.SetProperty('TetheringPassphrase', dbus.String(settings['TetheringPassphrase']['value'],
-                                                            variant_level=1))
-                                if technologie['Tethering'] != True:
-                                    self.Technology.SetProperty('Tethering', dbus.Boolean(True, variant_level=1))
+                            if settings['Tethering']['value'] == '1':
+                                if technologie['Tethering'] != True and self.struct['/net/connman/technology/ethernet']['settings']['Tethering']['value'] == '1':
+                                    xbmcgui.Dialog().ok(self.oe._(32151), self.oe._(32154))
+                                else:
+                                    if dbus.String(settings['TetheringIdentifier']['value']) != '' and dbus.String(settings['TetheringPassphrase']['value']) != '':
+                                        #time.sleep(5)
+                                        self.Technology.SetProperty('TetheringIdentifier', dbus.String(settings['TetheringIdentifier']['value'],
+                                                                    variant_level=1))
+                                        self.Technology.SetProperty('TetheringPassphrase', dbus.String(settings['TetheringPassphrase']['value'],
+                                                                    variant_level=1))
+                                        if technologie['Tethering'] != True:
+                                            self.Technology.SetProperty('Tethering', dbus.Boolean(True, variant_level=1))
                             else:
                                 if technologie['Tethering'] != False:
                                     self.Technology.SetProperty('Tethering', dbus.Boolean(False, variant_level=1))
@@ -989,6 +1007,17 @@ class connman:
                         if settings['Powered']['value'] == '1':
                             if technologie['Powered'] != True:
                                 self.Technology.SetProperty('Powered', dbus.Boolean(True, variant_level=1))
+                            if settings['Tethering']['value'] == '1':
+                                if technologie['Tethering'] != True:
+                                    if technologie['Tethering'] != True and self.struct['/net/connman/technology/wifi']['settings']['Tethering']['value'] == '1':
+                                        xbmcgui.Dialog().ok(self.oe._(32151), self.oe._(32153))
+                                    else:
+                                        tether = xbmcgui.Dialog().yesno(self.oe._(32151), self.oe._(32152))
+                                        if tether == True:
+                                            self.Technology.SetProperty('Tethering', dbus.Boolean(True, variant_level=1))
+                            else:
+                                if technologie['Tethering'] != False:
+                                    self.Technology.SetProperty('Tethering', dbus.Boolean(False, variant_level=1))
                         else:
                             if technologie['Powered'] != False:
                                 self.Technology.SetProperty('Powered', dbus.Boolean(False, variant_level=1))

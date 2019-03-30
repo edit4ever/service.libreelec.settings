@@ -153,7 +153,7 @@ msgid "Enable or disable support for Wired (Ethernet) networks"
 msgstr ""
 
 msgctxt "#731"
-msgid "Enable a 'tethered' Wired (Ethernet) Access Point. This requires your ethernet card (and driver) to support bridging and access point mode. Not all cards are capable."
+msgid "Enable a 'tethered' Ethernet connection so a directly connected client device can share the active WiFi connection. Also useful when the WiFi connection (e.g. in a Hotel) requires web-browser authentication."
 msgstr ""
 
 msgctxt "#732"
@@ -501,15 +501,15 @@ msgid "Warning!"
 msgstr ""
 
 msgctxt "#32152"
-msgid "If ethernet tethering is enabled, then a DHCP server is started on all ethernet interfaces. Tethered ethernet should never be connected to corporate or home network as it will disrupt normal operation of these networks. Only activate ethernet tethering if you really know what you are doing.[CR][CR]Do you wish to proceed?"
+msgid "Tethering enables a DHCP server on all Ethernet interfaces to support a directly connected device, e.g. laptop with a direct cable connection to the HTPC. Do not connect the HTPC to normal Ethernet networks or the DHCP server will respond to requests and cause IP address conflicts.[CR][CR]Do you want to proceed?"
 msgstr ""
 
 msgctxt "#32153"
-msgid "Only 1 network can be enabled for tethering at a time. Please disable the Wireless Network 'tethered' Access Point before proceeding."
+msgid "Ethernet tethering cannot be enabled while Wireless tethering is active. Please disable the Wireless tethered Access Point first."
 msgstr ""
 
 msgctxt "#32154"
-msgid "Only 1 network can be enabled for tethering at a time. Please disable the Wired (ethernet) Network 'tethered' Access Point before proceeding."
+msgid "Wireless tethering cannot be enabled while Ethernet tethering is active. Please disable the Ethernet tether first."
 msgstr ""
 
 msgctxt "#32180"

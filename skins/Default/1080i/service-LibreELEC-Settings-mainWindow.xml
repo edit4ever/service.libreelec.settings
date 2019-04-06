@@ -8,21 +8,22 @@
             <control type="image">
                 <depth>DepthBackground</depth>
                 <aspectratio>scale</aspectratio>
-                <animation effect="fade" start="100" end="bg_alpha" time="0" condition="Player.HasMedia + String.IsEmpty(Window(videolibrary).Property(PlayingBackgroundMedia))">Conditional</animation>
+                <animation effect="fade" start="100" end="bg_alpha" time="0" condition="Player.HasMedia + String.IsEmpty(Window(videos).Property(PlayingBackgroundMedia))">Conditional</animation>
                 <animation effect="fade" start="0" end="100" time="300" condition="Window.Previous(fullscreenvideo) | Window.Previous(startup)">WindowOpen</animation>
-                <texture fallback="default/bg.jpg">$VAR[GlobalFanartVar]</texture>
+                <texture>default/bg.jpg</texture>
+                <visible>String.IsEqual(Skin.Name,skin.estuary)</visible>
             </control>
         </control>
-        <include>DefaultBackground</include>
+        <include condition="String.IsEqual(Skin.Name,skin.estuary)">DefaultBackground</include>
 
         <!-- topbar -->
-        <include content="TopBar">
+        <include content="TopBar" condition="String.IsEqual(Skin.Name,skin.estuary)">
             <param name="breadcrumbs_label" value="$LOCALIZE[5]$INFO[Control.GetLabel(2), / ]" />
             <param name="breadcrumbs_icon" value="$VAR[SettingsSectionIcon]" />
         </include>
 
         <!-- bottombar -->
-        <include>BottomBar</include>
+        <include condition="String.IsEqual(Skin.Name,skin.estuary)">BottomBar</include>
 
         <control type="group">
             <left>110</left>
@@ -1216,4 +1217,3 @@
         </control>
     </controls>
 </window>
-

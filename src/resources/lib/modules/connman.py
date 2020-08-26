@@ -1242,6 +1242,8 @@ class connman:
             if listItem == None:
                 listItem = self.oe.winOeMain.getControl(self.oe.listObject['netlist']).getSelectedItem()
             service_object = self.oe.dbusSystemBus.get_object('net.connman', listItem.getProperty('entry'))
+            global try_service_path
+            try_service_path = listItem.getProperty('entry')
             dbus.Interface(service_object, 'net.connman.Service').Connect(reply_handler=self.connect_reply_handler,
                     error_handler=self.dbus_error_handler)
             service_object = None
@@ -1282,6 +1284,9 @@ class connman:
                     else:
                         self.log_error = 1
                         self.notify_error = 1
+                        clean_service_path = try_service_path.split('/')
+                        wifi_cache = 'rm -rf /storage/.cache/connman/' + clean_service_path[-1]
+                        self.oe.execute(str(wifi_cache))
                 elif 'Did not receive a reply' in err_message:
                     self.log_error = 1
                     self.notify_error = 0
